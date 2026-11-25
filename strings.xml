@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Qalb-ul-Quran</string>
+    <string name="app_subtitle_author">by Salar Ahmad</string>
+    <string name="nav_prayer">Prayers</string>
+    <string name="nav_quran">Quran</string>
+    <string name="nav_qibla">Qibla</string>
+    <string name="nav_tasbeeh">Tasbeeh</string>
+    <string name="cd_settings">Open settings</string>
+    <string name="cd_theme_toggle">Switch theme</string>
+    <string name="cd_location_picker">Change location</string>
+    <string name="cd_gps_detect">Detect GPS location</string>
+    <string name="cd_play_pause">Play or pause recitation</string>
+    <string name="cd_next_ayah">Next verse</string>
+    <string name="cd_prev_ayah">Previous verse</string>
+    <string name="cd_back">Navigate back</string>
+    <string name="cd_bookmark">Bookmark verse</string>
+    <string name="cd_reset_tasbeeh">Reset counter</string>
+    <string name="cd_add_dhikr">Add custom dhikr</string>
+    <string name="nav_profile">Profile</string>
+    <string name="cd_profile_avatar">User profile</string>
+</resources>
