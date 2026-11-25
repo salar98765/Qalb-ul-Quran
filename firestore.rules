@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 60 &&
+             data.email is string && data.email.size() <= 150 &&
+             (!('photoUrl' in data) || (data.photoUrl is string && data.photoUrl.size() <= 500)) &&
+             data.city is string && data.city.size() >= 1 && data.city.size() <= 80 &&
+             data.country is string && data.country.size() >= 1 && data.country.size() <= 80 &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() <= 240)) &&
+             data.preferredMethod is string && data.preferredMethod.size() >= 2 && data.preferredMethod.size() <= 30 &&
+             data.preferredReciterId is string && data.preferredReciterId.size() >= 2 && data.preferredReciterId.size() <= 60 &&
+             data.dailyDhikrGoal is int && data.dailyDhikrGoal >= 1 && data.dailyDhikrGoal <= 10000 &&
+             data.totalDhikrSynced is int && data.totalDhikrSynced >= 0 && data.totalDhikrSynced <= 100000000 &&
+             data.bookmarkedCount is int && data.bookmarkedCount >= 0 && data.bookmarkedCount <= 10000 &&
+             data.publicVisible is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPublicProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 2 && data.displayName.size() <= 60 &&
+             (!('photoUrl' in data) || (data.photoUrl is string && data.photoUrl.size() <= 500)) &&
+             data.city is string && data.city.size() >= 1 && data.city.size() <= 80 &&
+             data.country is string && data.country.size() >= 1 && data.country.size() <= 80 &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() <= 240)) &&
+             data.dailyDhikrGoal is int && data.dailyDhikrGoal >= 1 && data.dailyDhikrGoal <= 10000 &&
+             data.totalDhikrSynced is int && data.totalDhikrSynced >= 0 && data.totalDhikrSynced <= 100000000 &&
+             data.publicVisible is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'email', 'city', 'country',
+                         'preferredMethod', 'preferredReciterId', 'dailyDhikrGoal',
+                         'totalDhikrSynced', 'bookmarkedCount', 'publicVisible',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'email', 'photoUrl', 'city', 'country',
+                         'bio', 'preferredMethod', 'preferredReciterId', 'dailyDhikrGoal',
+                         'totalDhikrSynced', 'bookmarkedCount', 'publicVisible',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'displayName', 'email', 'photoUrl', 'city', 'country', 'bio',
+                         'preferredMethod', 'preferredReciterId', 'dailyDhikrGoal',
+                         'totalDhikrSynced', 'bookmarkedCount', 'publicVisible', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+    }
+
+    match /publicProfiles/{userId} {
+      allow get: if isSignedIn() &&
+                    isValidId(userId) &&
+                    (request.auth.uid == userId || (resource != null && existing().publicVisible == true));
+
+      allow list: if isSignedIn() && existing().publicVisible == true;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'city', 'country',
+                         'dailyDhikrGoal', 'totalDhikrSynced', 'publicVisible',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'photoUrl', 'city', 'country', 'bio',
+                         'dailyDhikrGoal', 'totalDhikrSynced', 'publicVisible',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidPublicProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidPublicProfile(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'displayName', 'photoUrl', 'city', 'country', 'bio',
+                         'dailyDhikrGoal', 'totalDhikrSynced', 'publicVisible', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+    }
+  }
+}

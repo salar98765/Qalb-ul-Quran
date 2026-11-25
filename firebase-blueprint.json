@@ -1,0 +1,162 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private user profile and synced spiritual preferences for Noor users",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the owner"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name (2..60 chars)"
+        },
+        "email": {
+          "type": "string",
+          "description": "Private Google account email (stored only in private /users/{userId})"
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Optional profile avatar URL"
+        },
+        "city": {
+          "type": "string",
+          "description": "User home city"
+        },
+        "country": {
+          "type": "string",
+          "description": "User home country"
+        },
+        "bio": {
+          "type": "string",
+          "description": "Optional short spiritual bio or greeting"
+        },
+        "preferredMethod": {
+          "type": "string",
+          "description": "Preferred prayer calculation method enum name"
+        },
+        "preferredReciterId": {
+          "type": "string",
+          "description": "Preferred Quran reciter ID"
+        },
+        "dailyDhikrGoal": {
+          "type": "integer",
+          "description": "Daily Tasbeeh dhikr target (1..10000)"
+        },
+        "totalDhikrSynced": {
+          "type": "integer",
+          "description": "Synced lifetime Tasbeeh count"
+        },
+        "bookmarkedCount": {
+          "type": "integer",
+          "description": "Count of Quran bookmarks synced"
+        },
+        "publicVisible": {
+          "type": "boolean",
+          "description": "Whether the user opts into the Global Ummah Community directory"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()"
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "email",
+        "city",
+        "country",
+        "preferredMethod",
+        "preferredReciterId",
+        "dailyDhikrGoal",
+        "totalDhikrSynced",
+        "bookmarkedCount",
+        "publicVisible",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PublicCommunityProfile": {
+      "title": "PublicCommunityProfile",
+      "description": "Non-PII global community profile visible to authenticated Noor users when opted in",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the owner"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Public display name (2..60 chars)"
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Optional Google avatar URL"
+        },
+        "city": {
+          "type": "string",
+          "description": "City name"
+        },
+        "country": {
+          "type": "string",
+          "description": "Country name"
+        },
+        "bio": {
+          "type": "string",
+          "description": "Optional short bio"
+        },
+        "dailyDhikrGoal": {
+          "type": "integer",
+          "description": "Daily Tasbeeh goal"
+        },
+        "totalDhikrSynced": {
+          "type": "integer",
+          "description": "Total synced Tasbeeh count"
+        },
+        "publicVisible": {
+          "type": "boolean",
+          "description": "Opt-in visibility flag for community listing"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp()"
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "city",
+        "country",
+        "dailyDhikrGoal",
+        "totalDhikrSynced",
+        "publicVisible",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user profile and synced spiritual settings (owner-only access)"
+    },
+    "/publicProfiles/{userId}": {
+      "schema": { "$ref": "#/entities/PublicCommunityProfile" },
+      "description": "Global community profile directory without PII"
+    }
+  }
+}

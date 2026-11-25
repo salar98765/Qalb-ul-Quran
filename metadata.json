@@ -1,0 +1,6 @@
+{
+  "name": "Qalb-ul-Quran",
+  "description": "Qalb-ul-Quran by Salar Ahmad — Global Islamic companion with Quran recitation and audio, astronomical prayer times, real-time Qibla compass, Tasbeeh counter, and cloud profiles in light and dark themes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
